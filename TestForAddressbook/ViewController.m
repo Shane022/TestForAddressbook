@@ -60,12 +60,25 @@
 - (void)getContactsInfo
 {
     // 不适用系统UI, 获取联系人信息
-    // 1.判断授权状态
+    // 1.获取授权状态
     CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
-    if (status != CNAuthorizationStatusAuthorized) return;
-    
-    //    // 2.创建通信录对象
     CNContactStore *store = [[CNContactStore alloc] init];
+    // 2.判断授权状态,如果是未决定请求授权
+    if (status == CNAuthorizationStatusNotDetermined) {
+        // 请求授权
+        [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            if (error) {
+                NSLog(@"%@", error);
+                return;
+            }
+            
+            if (granted) {
+                NSLog(@"授权成功");
+            } else {
+                NSLog(@"授权失败");
+            }
+        }];
+    }
     
     // 3.请求所有的联系人
     // 3.1.创建联系人请求对象,并且传入keys:你准备获取的信息(姓familyName名givenName 电话号码:phones)
